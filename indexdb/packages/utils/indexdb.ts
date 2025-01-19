@@ -1,6 +1,9 @@
-import { Listener, ListenerFn } from "./event";
+import { Listener, ListenerFn } from "./listener";
 
-type DbListenerArgs = { eventName: "get" | "add" | "update" | "delete"; data?: any };
+type DbListenerArgs = { eventName: "get" | "add" | "update" | "delete"} & Record<string, any>;
+
+const indexedDbFactory =
+  window.indexedDB //|| window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
 
 export class IDB<T extends Record<string, any>> {
     constructor(private dbName: string, private tableNames: string[], private version: number) {}
@@ -40,7 +43,7 @@ export class IDB<T extends Record<string, any>> {
         return new Promise((resolve, reject) => {
             const request = table.get(id);
             request.onsuccess = () => {
-                this.listener.emit("change", { eventName: "get", data: request.result });
+                this.listener.emit("change", { eventName: "get", item: request.result });
                 resolve(request.result);
             };
             request.onerror = (event) => {
@@ -57,7 +60,7 @@ export class IDB<T extends Record<string, any>> {
         return new Promise((resolve, reject) => {
             const request = table.add(item);
             request.onsuccess = () => {
-                this.listener.emit("change", { eventName: "add", data: item });
+                this.listener.emit("change", { eventName: "add", item: item });
 
                 resolve();
             };
@@ -72,7 +75,7 @@ export class IDB<T extends Record<string, any>> {
         return new Promise((resolve, reject) => {
             const request = table.delete(id);
             request.onsuccess = () => {
-                this.listener.emit("change", { eventName: "delete", data: id });
+                this.listener.emit("change", { eventName: "delete", id: id });
                 resolve();
             };
             request.onerror = (event) => {
@@ -103,7 +106,7 @@ export class IDB<T extends Record<string, any>> {
         return new Promise((resolve, reject) => {
             const request = table.clear();
             request.onsuccess = () => {
-                this.listener.emit("change", { eventName: "delete", data: tableName.toString() + " clear" });
+                this.listener.emit("change", { eventName: "delete", table: tableName.toString() + " clear" });
                 resolve();
             };
             request.onerror = (event) => {
@@ -114,7 +117,7 @@ export class IDB<T extends Record<string, any>> {
 
     private async initDb() {
         return new Promise<IDBDatabase>((resolve, reject) => {
-            const request = indexedDB.open(this.dbName, this.version);
+            const request = indexedDbFactory.open(this.dbName, this.version);
 
             request.onupgradeneeded = (event) => {
                 const db = (event.target as IDBOpenDBRequest).result;

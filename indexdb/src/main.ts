@@ -1,12 +1,21 @@
+import { Listener } from "../packages/utils/listener.ts";
 import { buttons, inputs, preview } from "./build-dom.ts";
 import { PERSON } from "./db.type.ts";
 import { db } from "./init-db.ts";
 import "./style.css";
 
+const listener = new Listener<{ name: string }>();
+
 (async () => {
-db.dbChanged((x)=>{
-  console.log("change", x)
-})
+    db.dbChanged((x) => {
+        console.log("change", x);
+    });
+
+    listener.on("event", x=> {
+        console.log("event", x);
+    })
+
+
 
     const { pre } = preview();
     async function renderAllPeople() {
@@ -24,7 +33,11 @@ db.dbChanged((x)=>{
     await renderAllPeople();
 
     const { idInput, nameInput, ageInput, clearInputs } = inputs();
-    const {createPerson,updatePerson} = buttons();
+    const { createPerson, updatePerson,log } = buttons();
+
+    log.element.addEventListener("click", () => {
+      listener.emit("event", { name: "event" });
+    })
 
     const deletePersonButtons = document.querySelectorAll(".delete-person-button");
 

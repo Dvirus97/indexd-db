@@ -34,5 +34,6 @@ export function buttons() {
  const updatePerson = ec("button").appendTo(buttonDiv.element).text("Update Person");
  const createCar = ec("button").appendTo(buttonDiv.element).text("Create Car");
  const updateCar = ec("button").appendTo(buttonDiv.element).text("Update Car");
- return { buttonDiv, createPerson, updatePerson, createCar, updateCar };
+ const log = ec("button").appendTo(buttonDiv.element).text("LOG");
+ return { buttonDiv, createPerson, updatePerson, createCar, updateCar , log};
 }
