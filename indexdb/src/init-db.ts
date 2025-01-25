@@ -1,4 +1,4 @@
 import { IDB } from "../packages/utils/indexdb";
-import { AppDb, CAR, PERSON } from "./db.type";
+import { TodoDb } from "./db.type";
 
-export const db = new IDB<AppDb>("appDb", [PERSON, CAR], 2);
+export const db = new IDB<TodoDb>("todoDb", ["todo"], 1);
